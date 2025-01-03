@@ -40,6 +40,7 @@ const User = mongoose.model("User", UserSchema);
 // Routes
 
 // Signup Route
+// Signup Route
 app.post("/signup", async (req, res) => {
   const { name, email, password, age, highestEducation } = req.body;
   try {
@@ -48,7 +49,9 @@ app.post("/signup", async (req, res) => {
       return res.status(400).send({ error: "Email already exists" });
     }
 
-    const hashedPassword = await argon2.hash(password, 10);
+    // Properly hash the password using argon2
+    const hashedPassword = await argon2.hash(password, { type: argon2.argon2id });
+
     const newUser = new User({
       name,
       email,
@@ -65,6 +68,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+
 // Login Route
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -77,7 +81,7 @@ app.post("/login", async (req, res) => {
 
     console.log("User found:", user);
 
-    const isPasswordValid = await argon2.compare(password, user.password);
+    const isPasswordValid = await argon2.verify(user.password, password);
     if (!isPasswordValid) {
       console.log("Password mismatch");
       return res.status(401).send({ error: "Invalid credentials" });
