@@ -2,7 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const bcrypt = require("bcrypt");
+
+const argon2 = require('argon2');
 const jwt = require("jsonwebtoken");
 
 // Initialize app
@@ -48,7 +49,7 @@ app.post("/signup", async (req, res) => {
       return res.status(400).send({ error: "Email already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await argon2.hash(password, 10);
     const newUser = new User({
       name,
       email,
@@ -74,7 +75,7 @@ app.post("/login", async (req, res) => {
       return res.status(401).send({ error: "Invalid credentials" });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await argon2.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).send({ error: "Invalid credentials" });
     }
