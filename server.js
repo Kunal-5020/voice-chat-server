@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
 const argon2 = require('argon2');
 const jwt = require("jsonwebtoken");
 
@@ -72,23 +71,30 @@ app.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
+      console.log("User not found");
       return res.status(401).send({ error: "Invalid credentials" });
     }
 
+    console.log("User found:", user);
+
     const isPasswordValid = await argon2.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log("Password mismatch");
       return res.status(401).send({ error: "Invalid credentials" });
     }
 
     const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.status(200).send({ message: "Login successful", token ,user: user});
+
+    console.log("Token generated:", token);
+    res.status(200).send({ message: "Login successful", token, user });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).send({ error: "Error logging in" });
   }
 });
+
 
 // Update User Settings
 app.put("/settings", async (req, res) => {
