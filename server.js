@@ -143,11 +143,11 @@ app.put("/checklist", async (req, res) => {
 app.put("/updatehistory", async (req, res) => {
   const { id,allHistorySummary} = req.body;
   try {
+    const history = JSON.stringify(allHistorySummary)
+    console.log("history - ", history);
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      {
-        $push: {  "allHistorySummary":{allHistorySummary}},
-      },
+      { allHistorySummary: allHistorySummary }, 
       { new: true }
     );
     if (!updatedUser) {
@@ -155,8 +155,8 @@ app.put("/updatehistory", async (req, res) => {
     }
     res.status(200).send(updatedUser);
   } catch (error) {
-    console.error("Error updating checklist:", error);
-    res.status(500).send({ error: "Error updating checklist" });
+    console.error("Error updating history:", error);
+    res.status(500).send({ error: "Error updating history" });
   }
 });
 
